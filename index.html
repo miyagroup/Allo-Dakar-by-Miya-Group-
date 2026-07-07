@@ -80,7 +80,7 @@ if(!sender||!senderPhone||!recip||!recipPhone)return showToast("Toutes les infos
 if(!cPm)return showToast("Choisissez un paiement","error");
 if(!cPmPhone)return showToast("Entrez votre numéro","error");
 setBusy(true);
-const row={code:randCode(),from_city:cFrom,to_city:cTo,tier:tier.label,desc,sender,sender_phone:senderPhone,recip,recip_phone:recipPhone,price:tier.price,status:"en attente",payment:cPm};
+const row={code:randCode(),from_city:cFrom,to_city:cTo,tier:tier.label,description:desc,sender,sender_phone:senderPhone,recip,recip_phone:recipPhone,price:tier.price,status:"en attente",payment:cPm};
 const{error}=await sb.from("colis").insert(row);
 setBusy(false);
 if(error){showToast("Erreur d'enregistrement","error");return}
