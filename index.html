@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Allo Dakar - by Miya Group</title><script src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#0a0f1e;font-family:'Sora',sans-serif}input,select{outline:none;border:none;background:none;color:#f0f4ff;font-family:'Sora',sans-serif;width:100%}input::placeholder{color:#445}select option{background:#151c35;color:#f0f4ff}@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}@keyframes toastIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}.card{animation:fadeUp .4s ease forwards}.btn-primary{background:linear-gradient(135deg,#f97316,#f59e0b);border:none;color:#fff;padding:14px 24px;border-radius:14px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;cursor:pointer;width:100%;transition:all .2s}.btn-secondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#c8d0f0;padding:10px 18px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600;font-size:13px;cursor:pointer}.field{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 16px;transition:border .2s}.field:focus-within{border-color:#f97316}.field label{display:block;font-size:10px;font-weight:600;color:#7891b0;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}.route-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:10px;transition:all .2s}.depart-btn{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:#fdba74;padding:7px 14px;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin:4px}.tab-btn{padding:8px 20px;border-radius:10px;border:none;font-family:'Sora',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}.res-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:8px}.pay-card{border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;margin-bottom:10px}.tier-card{border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}</style></head><body><div id="root"></div><script type="text/babel">
-const{useState}=React;
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Allo Dakar - by Miya Group</title><script src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#0a0f1e;font-family:'Sora',sans-serif}input,select{outline:none;border:none;background:none;color:#f0f4ff;font-family:'Sora',sans-serif;width:100%}input::placeholder{color:#445}select option{background:#151c35;color:#f0f4ff}@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}@keyframes toastIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}@keyframes spin{to{transform:rotate(360deg)}}.card{animation:fadeUp .4s ease forwards}.btn-primary{background:linear-gradient(135deg,#f97316,#f59e0b);border:none;color:#fff;padding:14px 24px;border-radius:14px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;cursor:pointer;width:100%;transition:all .2s}.btn-primary:disabled{opacity:.6;cursor:not-allowed}.btn-secondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#c8d0f0;padding:10px 18px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600;font-size:13px;cursor:pointer}.field{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 16px;transition:border .2s}.field:focus-within{border-color:#f97316}.field label{display:block;font-size:10px;font-weight:600;color:#7891b0;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}.route-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:10px;transition:all .2s}.depart-btn{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:#fdba74;padding:7px 14px;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin:4px}.tab-btn{padding:8px 16px;border-radius:10px;border:none;font-family:'Sora',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}.res-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:8px}.pay-card{border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;margin-bottom:10px}.tier-card{border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#f97316;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}</style></head><body><div id="root"></div><script type="text/babel">
+const{useState,useEffect}=React;
+const sb=window.supabase.createClient("https://dahiczjsgdzzjvcihuvi.supabase.co","sb_publishable_M-wLo5QG3EcB1Fjdi2tCuw_5zxE7vMK");
 const ROUTES=[{id:1,from:"Dakar",to:"Thiès",price:5000,duration:"1h00",departs:["06:00","08:00","10:00","14:00","17:00"]}];
-const INIT=[{id:"RES-001",client:"Oumar Diallo",phone:"77 123 45 67",from:"Dakar",to:"Thiès",date:"2026-05-05",depart:"08:00",seats:2,price:10000,status:"confirmée",payment:"Orange Money"},{id:"RES-002",client:"Aïssatou Ndiaye",phone:"78 234 56 78",from:"Dakar",to:"Thiès",date:"2026-05-06",depart:"10:00",seats:1,price:5000,status:"en attente",payment:"Wave"}];
 const CITIES=[...new Set(ROUTES.flatMap(r=>[r.from,r.to]))].sort();
 const PM=[{id:"orange",label:"Orange Money",color:"#FF6B00",bg:"rgba(255,107,0,0.12)",icon:"🟠",hint:"77/78 XXX XX XX"},{id:"wave",label:"Wave",color:"#00BFFF",bg:"rgba(0,191,255,0.1)",icon:"🔵",hint:"70 XXX XX XX"}];
 const COLIS_TIERS=[{id:"leger",label:"Léger",sub:"jusqu'à 5 kg",price:3000},{id:"moyen",label:"Moyen",sub:"5 à 20 kg",price:4500},{id:"lourd",label:"Lourd",sub:"20 à 50 kg",price:6500}];
-const COLIS_INIT=[{code:"AD-COL-4F82K1",from:"Dakar",to:"Thiès",tier:"Léger",desc:"Documents",sender:"Moussa Fall",senderPhone:"77 890 12 34",recip:"Khady Sarr",recipPhone:"78 456 78 90",price:3000,status:"en attente",payment:"Wave"}];
 const ADMIN_PWD="77bobomiya";
 function randCode(){const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return `AD-COL-${s}`}
+function randId(list){return `RES-${String(list.length+1).padStart(3,"0")}-${Math.floor(Math.random()*900+100)}`}
 function App(){
 const[view,setView]=useState("client");
 const[adminOk,setAdminOk]=useState(false);
@@ -15,7 +15,7 @@ const[adminInput,setAdminInput]=useState("");
 const[adminErr,setAdminErr]=useState(false);
 const[adminTab,setAdminTab]=useState("trajets");
 const[step,setStep]=useState(1);
-const[res,setRes]=useState(INIT);
+const[res,setRes]=useState([]);
 const[from,setFrom]=useState("");const[to,setTo]=useState("");
 const[date,setDate]=useState("");const[seats,setSeats]=useState(1);
 const[found,setFound]=useState([]);const[route,setRoute]=useState(null);
@@ -24,8 +24,10 @@ const[name,setName]=useState("");const[phone,setPhone]=useState("");
 const[pm,setPm]=useState("");const[pmPhone,setPmPhone]=useState("");
 const[filter,setFilter]=useState("toutes");
 const[toast,setToast]=useState(null);
+const[busy,setBusy]=useState(false);
+const[lastRes,setLastRes]=useState(null);
 // --- colis state ---
-const[colisRes,setColisRes]=useState(COLIS_INIT);
+const[colisRes,setColisRes]=useState([]);
 const[cStep,setCStep]=useState(1);
 const[cFrom,setCFrom]=useState("");const[cTo,setCTo]=useState("");
 const[tier,setTier]=useState(null);
@@ -35,15 +37,74 @@ const[recip,setRecip]=useState("");const[recipPhone,setRecipPhone]=useState("");
 const[cPm,setCPm]=useState("");const[cPmPhone,setCPmPhone]=useState("");
 const[cFilter,setCFilter]=useState("toutes");
 const[lastColis,setLastColis]=useState(null);
+// --- suivi state ---
+const[trackCode,setTrackCode]=useState("");
+const[trackResult,setTrackResult]=useState(null);
+const[trackType,setTrackType]=useState(null);
+const[trackSearched,setTrackSearched]=useState(false);
+const[trackBusy,setTrackBusy]=useState(false);
 const showToast=(msg,type="success")=>{setToast({msg,type});setTimeout(()=>setToast(null),3000)};
+
+async function loadAdminData(){
+setBusy(true);
+const[{data:r,error:e1},{data:c,error:e2}]=await Promise.all([
+sb.from("reservations").select("*").order("created_at",{ascending:false}),
+sb.from("colis").select("*").order("created_at",{ascending:false})
+]);
+if(!e1)setRes(r||[]);
+if(!e2)setColisRes(c||[]);
+if(e1||e2)showToast("Erreur de chargement","error");
+setBusy(false);
+}
+useEffect(()=>{if(view==="admin"&&adminOk)loadAdminData()},[view,adminOk]);
+
 const search=()=>{if(!from||!to||!date)return showToast("Remplissez tous les champs","error");if(from===to)return showToast("Départ et arrivée identiques","error");const r=ROUTES.filter(r=>r.from===from&&r.to===to);if(!r.length)return showToast("Aucun trajet disponible","error");setFound(r);setStep(2)};
-const book=()=>{if(!name||!phone)return showToast("Nom et téléphone requis","error");if(!pm)return showToast("Choisissez un paiement","error");if(!pmPhone)return showToast("Entrez votre numéro","error");const n={id:`RES-${String(res.length+1).padStart(3,"0")}`,client:name,phone,from:route.from,to:route.to,date,depart,seats,price:route.price*seats,status:"en attente",payment:pm};setRes(p=>[n,...p]);setStep(4)};
-const reset=()=>{setStep(1);setFrom("");setTo("");setDate("");setSeats(1);setFound([]);setRoute(null);setDepart("");setName("");setPhone("");setPm("");setPmPhone("");setAdminOk(false);setAdminInput("");setAdminErr(false)};
+const book=async()=>{
+if(!name||!phone)return showToast("Nom et téléphone requis","error");
+if(!pm)return showToast("Choisissez un paiement","error");
+if(!pmPhone)return showToast("Entrez votre numéro","error");
+setBusy(true);
+const id=randId(res);
+const row={id,client:name,phone,from_city:route.from,to_city:route.to,date,depart,seats,price:route.price*seats,status:"en attente",payment:pm};
+const{error}=await sb.from("reservations").insert(row);
+setBusy(false);
+if(error){showToast("Erreur d'enregistrement","error");return}
+setLastRes(row);
+setStep(4);
+};
+const reset=()=>{setStep(1);setFrom("");setTo("");setDate("");setSeats(1);setFound([]);setRoute(null);setDepart("");setName("");setPhone("");setPm("");setPmPhone("");setLastRes(null)};
 // --- colis actions ---
 const cSearch=()=>{if(!cFrom||!cTo)return showToast("Choisissez départ et arrivée","error");if(cFrom===cTo)return showToast("Départ et arrivée identiques","error");const ok=ROUTES.some(r=>r.from===cFrom&&r.to===cTo);if(!ok)return showToast("Trajet colis indisponible","error");setCStep(2)};
-const cBook=()=>{if(!sender||!senderPhone||!recip||!recipPhone)return showToast("Toutes les infos sont requises","error");if(!cPm)return showToast("Choisissez un paiement","error");if(!cPmPhone)return showToast("Entrez votre numéro","error");const n={code:randCode(),from:cFrom,to:cTo,tier:tier.label,desc,sender,senderPhone,recip,recipPhone,price:tier.price,status:"en attente",payment:cPm};setColisRes(p=>[n,...p]);setLastColis(n);setCStep(4)};
+const cBook=async()=>{
+if(!sender||!senderPhone||!recip||!recipPhone)return showToast("Toutes les infos sont requises","error");
+if(!cPm)return showToast("Choisissez un paiement","error");
+if(!cPmPhone)return showToast("Entrez votre numéro","error");
+setBusy(true);
+const row={code:randCode(),from_city:cFrom,to_city:cTo,tier:tier.label,desc,sender,sender_phone:senderPhone,recip,recip_phone:recipPhone,price:tier.price,status:"en attente",payment:cPm};
+const{error}=await sb.from("colis").insert(row);
+setBusy(false);
+if(error){showToast("Erreur d'enregistrement","error");return}
+setLastColis(row);
+setCStep(4);
+};
 const cReset=()=>{setCStep(1);setCFrom("");setCTo("");setTier(null);setDesc("");setSender("");setSenderPhone("");setRecip("");setRecipPhone("");setCPm("");setCPmPhone("");setLastColis(null)};
 const copyCode=code=>{navigator.clipboard?.writeText(code).catch(()=>{});showToast("Code copié ✓")};
+// --- admin update actions ---
+const updateResStatus=async(id,status)=>{const{error}=await sb.from("reservations").update({status}).eq("id",id);if(error)return showToast("Erreur","error");setRes(p=>p.map(x=>x.id===id?{...x,status}:x))};
+const deleteRes=async(id)=>{const{error}=await sb.from("reservations").delete().eq("id",id);if(error)return showToast("Erreur","error");setRes(p=>p.filter(x=>x.id!==id))};
+const updateColisStatus=async(code,status)=>{const{error}=await sb.from("colis").update({status}).eq("code",code);if(error)return showToast("Erreur","error");setColisRes(p=>p.map(x=>x.code===code?{...x,status}:x))};
+const deleteColis=async(code)=>{const{error}=await sb.from("colis").delete().eq("code",code);if(error)return showToast("Erreur","error");setColisRes(p=>p.filter(x=>x.code!==code))};
+// --- suivi (client tracking) ---
+const trackSearch=async()=>{
+const code=trackCode.trim().toUpperCase();
+if(!code)return showToast("Entrez un code","error");
+setTrackBusy(true);setTrackSearched(false);setTrackResult(null);setTrackType(null);
+const{data:r}=await sb.from("reservations").select("*").eq("id",code).maybeSingle();
+if(r){setTrackResult(r);setTrackType("trajet");setTrackBusy(false);setTrackSearched(true);return}
+const{data:c}=await sb.from("colis").select("*").eq("code",code).maybeSingle();
+if(c){setTrackResult(c);setTrackType("colis")}
+setTrackBusy(false);setTrackSearched(true);
+};
 const sc=s=>s==="confirmée"?"#22c55e":s==="annulée"?"#ef4444":"#f59e0b";
 const pc=p=>p==="Orange Money"?"#FF6B00":"#00BFFF";
 const selPm=PM.find(p=>p.label===pm);
@@ -58,9 +119,10 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 <div style={{width:"100%",maxWidth:430,padding:"20px 20px 0"}}>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24,flexWrap:"wrap",gap:10}}>
 <div><div style={{fontSize:22,fontWeight:800}}>🚌 <span style={{background:"linear-gradient(135deg,#f97316,#f59e0b)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Allo Dakar</span></div><div style={{fontSize:11,color:"#556",marginTop:2}}>by <span style={{color:"#f59e0b",fontWeight:600}}>Miya Group</span></div></div>
-<div style={{display:"flex",gap:8}}>
+<div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
 <button className="tab-btn" onClick={()=>{setView("client");reset()}} style={{background:view==="client"?"linear-gradient(135deg,#f97316,#f59e0b)":"rgba(255,255,255,0.07)",color:view==="client"?"white":"#aaa"}}>Client</button>
 <button className="tab-btn" onClick={()=>{setView("colis");cReset()}} style={{background:view==="colis"?"linear-gradient(135deg,#f97316,#f59e0b)":"rgba(255,255,255,0.07)",color:view==="colis"?"white":"#aaa"}}>📦 Colis</button>
+<button className="tab-btn" onClick={()=>{setView("suivi");setTrackCode("");setTrackResult(null);setTrackSearched(false)}} style={{background:view==="suivi"?"linear-gradient(135deg,#f97316,#f59e0b)":"rgba(255,255,255,0.07)",color:view==="suivi"?"white":"#aaa"}}>🔍 Suivi</button>
 <button className="tab-btn" onClick={()=>setView("admin")} style={{background:view==="admin"?"linear-gradient(135deg,#f97316,#f59e0b)":"rgba(255,255,255,0.07)",color:view==="admin"?"white":"#aaa"}}>Admin</button>
 </div>
 </div></div>
@@ -83,10 +145,11 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#d0c0b0",textTransform:"uppercase"}}>💳 Mode de paiement</div>
 {PM.map(p=><div key={p.id} className="pay-card" onClick={()=>{setPm(p.label);setPmPhone("")}} style={{background:pm===p.label?p.bg:"rgba(255,255,255,0.04)",border:`2px solid ${pm===p.label?p.color:"rgba(255,255,255,0.08)"}`}}><div style={{fontSize:30}}>{p.icon}</div><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:pm===p.label?p.color:"#e0e8ff"}}>{p.label}</div><div style={{fontSize:11,color:"#778"}}>Paiement mobile sécurisé</div></div><div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${pm===p.label?p.color:"#445"}`,background:pm===p.label?p.color:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"white"}}>{pm===p.label?"✓":""}</div></div>)}
 {pm&&selPm&&<><div style={{background:selPm.bg,border:`1px solid ${selPm.color}55`,borderRadius:12,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:14}}><div style={{fontSize:28}}>{selPm.icon}</div><div><div style={{fontSize:10,color:"#778",textTransform:"uppercase",fontWeight:600}}>Envoyez le paiement au</div><div style={{fontSize:22,fontWeight:800,color:selPm.color,marginTop:3}}>77 591 91 00</div><div style={{fontSize:11,color:"#a0a8c0",marginTop:3}}>Nom : <span style={{color:"#f59e0b",fontWeight:700}}>Miya Group</span></div></div></div><div className="field" style={{marginBottom:24,borderColor:selPm.color+"66"}}><label>Votre numéro {pm} *</label><input value={pmPhone} onChange={e=>setPmPhone(e.target.value)} placeholder={selPm.hint} type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></>}
-<button className="btn-primary" onClick={book}>Payer et Réserver {pm?`via ${pm}`:""} ✓</button></div>}
-{step===4&&<div className="card" style={{textAlign:"center"}}><div style={{fontSize:64,marginBottom:16}}>✅</div><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Réservation envoyée !</div><div style={{fontSize:14,color:"#778",marginBottom:24}}>Vous serez contacté pour confirmer.</div>
+<button className="btn-primary" onClick={book} disabled={busy}>{busy?<span className="spinner"/>:`Payer et Réserver ${pm?`via ${pm}`:""} ✓`}</button></div>}
+{step===4&&lastRes&&<div className="card" style={{textAlign:"center"}}><div style={{fontSize:64,marginBottom:16}}>✅</div><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Réservation envoyée !</div><div style={{fontSize:14,color:"#778",marginBottom:24}}>Vous serez contacté pour confirmer. Gardez votre ID pour vérifier le statut.</div>
+<div onClick={()=>copyCode(lastRes.id)} style={{background:"linear-gradient(135deg,rgba(249,115,22,0.15),rgba(245,158,11,0.1))",border:"1px solid rgba(249,115,22,0.3)",borderRadius:14,padding:"16px",marginBottom:16,fontSize:18,fontWeight:800,letterSpacing:1,color:"#fb923c",cursor:"pointer"}}>{lastRes.id} <span style={{fontSize:13,color:"#c0a080"}}>(copier)</span></div>
 <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20,marginBottom:16,textAlign:"left"}}>
-{[["🆔","ID",res[0]?.id],["👤","Nom",name],["📍","Trajet",`${route?.from} → ${route?.to}`],["📅","Date",new Date(date).toLocaleDateString("fr-FR")],["🕐","Départ",depart],["👥","Places",`${seats} place${seats>1?"s":""}`],["💰","Total",`${(route?.price*seats)?.toLocaleString()} FCFA`],["💳","Paiement",pm]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}><span style={{color:"#778"}}>{i} {k}</span><span style={{fontWeight:600,color:k==="Paiement"?pc(v):"#f0f4ff"}}>{v}</span></div>)}
+{[["👤","Nom",name],["📍","Trajet",`${route?.from} → ${route?.to}`],["📅","Date",new Date(date).toLocaleDateString("fr-FR")],["🕐","Départ",depart],["👥","Places",`${seats} place${seats>1?"s":""}`],["💰","Total",`${(route?.price*seats)?.toLocaleString()} FCFA`],["💳","Paiement",pm]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}><span style={{color:"#778"}}>{i} {k}</span><span style={{fontWeight:600,color:k==="Paiement"?pc(v):"#f0f4ff"}}>{v}</span></div>)}
 </div>
 <div style={{background:"rgba(245,158,11,0.1)",border:"1px solid rgba(245,158,11,0.3)",borderRadius:12,padding:12,marginBottom:24,fontSize:13,color:"#fbbf24"}}>⏳ En attente de confirmation</div>
 <button className="btn-primary" onClick={reset}>Nouvelle réservation</button></div>}
@@ -118,14 +181,37 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#d0c0b0",textTransform:"uppercase"}}>💳 Mode de paiement</div>
 {PM.map(p=><div key={p.id} className="pay-card" onClick={()=>{setCPm(p.label);setCPmPhone("")}} style={{background:cPm===p.label?p.bg:"rgba(255,255,255,0.04)",border:`2px solid ${cPm===p.label?p.color:"rgba(255,255,255,0.08)"}`}}><div style={{fontSize:30}}>{p.icon}</div><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:cPm===p.label?p.color:"#e0e8ff"}}>{p.label}</div><div style={{fontSize:11,color:"#778"}}>Paiement mobile sécurisé</div></div><div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${cPm===p.label?p.color:"#445"}`,background:cPm===p.label?p.color:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"white"}}>{cPm===p.label?"✓":""}</div></div>)}
 {cPm&&selCPm&&<><div style={{background:selCPm.bg,border:`1px solid ${selCPm.color}55`,borderRadius:12,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:14}}><div style={{fontSize:28}}>{selCPm.icon}</div><div><div style={{fontSize:10,color:"#778",textTransform:"uppercase",fontWeight:600}}>Envoyez le paiement au</div><div style={{fontSize:22,fontWeight:800,color:selCPm.color,marginTop:3}}>77 591 91 00</div><div style={{fontSize:11,color:"#a0a8c0",marginTop:3}}>Nom : <span style={{color:"#f59e0b",fontWeight:700}}>Miya Group</span></div></div></div><div className="field" style={{marginBottom:24,borderColor:selCPm.color+"66"}}><label>Votre numéro {cPm} *</label><input value={cPmPhone} onChange={e=>setCPmPhone(e.target.value)} placeholder={selCPm.hint} type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></>}
-<button className="btn-primary" onClick={cBook}>Payer et Envoyer {cPm?`via ${cPm}`:""} ✓</button></div>}
+<button className="btn-primary" onClick={cBook} disabled={busy}>{busy?<span className="spinner"/>:`Payer et Envoyer ${cPm?`via ${cPm}`:""} ✓`}</button></div>}
 {cStep===4&&lastColis&&<div className="card" style={{textAlign:"center"}}><div style={{fontSize:64,marginBottom:16}}>✅</div><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Colis enregistré !</div><div style={{fontSize:14,color:"#778",marginBottom:24}}>Gardez ce code pour le suivi et le retrait.</div>
 <div onClick={()=>copyCode(lastColis.code)} style={{background:"linear-gradient(135deg,rgba(249,115,22,0.15),rgba(245,158,11,0.1))",border:"1px solid rgba(249,115,22,0.3)",borderRadius:14,padding:"16px",marginBottom:16,fontSize:20,fontWeight:800,letterSpacing:1,color:"#fb923c",cursor:"pointer"}}>{lastColis.code} <span style={{fontSize:13,color:"#c0a080"}}>(copier)</span></div>
 <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20,marginBottom:16,textAlign:"left"}}>
-{[["📍","Trajet",`${lastColis.from} → ${lastColis.to}`],["⚖️","Type",lastColis.tier],["📤","Expéditeur",`${lastColis.sender} (${lastColis.senderPhone})`],["📥","Destinataire",`${lastColis.recip} (${lastColis.recipPhone})`],["💰","Total",`${lastColis.price.toLocaleString()} FCFA`],["💳","Paiement",lastColis.payment]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8,gap:10}}><span style={{color:"#778",flexShrink:0}}>{i} {k}</span><span style={{fontWeight:600,color:k==="Paiement"?pc(v):"#f0f4ff",textAlign:"right"}}>{v}</span></div>)}
+{[["📍","Trajet",`${lastColis.from_city} → ${lastColis.to_city}`],["⚖️","Type",lastColis.tier],["📤","Expéditeur",`${lastColis.sender} (${lastColis.sender_phone})`],["📥","Destinataire",`${lastColis.recip} (${lastColis.recip_phone})`],["💰","Total",`${lastColis.price.toLocaleString()} FCFA`],["💳","Paiement",lastColis.payment]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8,gap:10}}><span style={{color:"#778",flexShrink:0}}>{i} {k}</span><span style={{fontWeight:600,color:k==="Paiement"?pc(v):"#f0f4ff",textAlign:"right"}}>{v}</span></div>)}
 </div>
 <div style={{background:"rgba(245,158,11,0.1)",border:"1px solid rgba(245,158,11,0.3)",borderRadius:12,padding:12,marginBottom:24,fontSize:13,color:"#fbbf24"}}>⏳ En attente de confirmation</div>
 <button className="btn-primary" onClick={cReset}>Envoyer un autre colis</button></div>}
+</div>}
+{view==="suivi"&&<div style={{width:"100%",maxWidth:430,padding:"0 20px 40px",flex:1}}>
+<div className="card">
+<div style={{fontSize:20,fontWeight:800,marginBottom:4}}>Vérifier un statut 🔍</div>
+<div style={{fontSize:13,color:"#778",marginBottom:24}}>Entrez votre ID de réservation ou code colis</div>
+<div className="field" style={{marginBottom:16}}><label>Code</label><input value={trackCode} onChange={e=>setTrackCode(e.target.value)} onKeyDown={e=>e.key==="Enter"&&trackSearch()} placeholder="Ex: RES-001-123 ou AD-COL-XXXXXX" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div>
+<button className="btn-primary" onClick={trackSearch} disabled={trackBusy}>{trackBusy?<span className="spinner"/>:"Vérifier →"}</button>
+{trackSearched&&!trackResult&&<div style={{textAlign:"center",padding:"30px 0",color:"#556",fontSize:14}}>Aucun résultat pour ce code.</div>}
+{trackResult&&trackType==="trajet"&&<div style={{marginTop:20,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+<div style={{fontSize:16,fontWeight:700}}>{trackResult.from_city} → {trackResult.to_city}</div>
+<div style={{background:`${sc(trackResult.status)}22`,border:`1px solid ${sc(trackResult.status)}44`,color:sc(trackResult.status),padding:"3px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>{trackResult.status}</div>
+</div>
+{[["👤","Nom",trackResult.client],["📅","Date",new Date(trackResult.date).toLocaleDateString("fr-FR")],["🕐","Départ",trackResult.depart],["👥","Places",trackResult.seats],["💰","Total",`${trackResult.price.toLocaleString()} FCFA`]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}><span style={{color:"#778"}}>{i} {k}</span><span style={{fontWeight:600}}>{v}</span></div>)}
+</div>}
+{trackResult&&trackType==="colis"&&<div style={{marginTop:20,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+<div style={{fontSize:16,fontWeight:700}}>{trackResult.from_city} → {trackResult.to_city}</div>
+<div style={{background:`${sc(trackResult.status)}22`,border:`1px solid ${sc(trackResult.status)}44`,color:sc(trackResult.status),padding:"3px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>{trackResult.status}</div>
+</div>
+{[["⚖️","Type",trackResult.tier],["📤","Expéditeur",trackResult.sender],["📥","Destinataire",trackResult.recip],["💰","Total",`${trackResult.price.toLocaleString()} FCFA`]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}><span style={{color:"#778"}}>{i} {k}</span><span style={{fontWeight:600}}>{v}</span></div>)}
+</div>}
+</div>
 </div>}
 {view==="admin"&&!adminOk&&<div style={{width:"100%",maxWidth:430,padding:"0 20px 40px"}}><div className="card" style={{textAlign:"center",paddingTop:40}}>
 <div style={{fontSize:56,marginBottom:16}}>🔐</div>
@@ -139,6 +225,7 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 <div style={{display:"flex",gap:8,marginBottom:20}}>
 <button onClick={()=>setAdminTab("trajets")} style={{flex:1,padding:"9px 0",borderRadius:10,border:"1px solid",borderColor:adminTab==="trajets"?"#f97316":"rgba(255,255,255,0.1)",background:adminTab==="trajets"?"rgba(249,115,22,0.15)":"transparent",color:adminTab==="trajets"?"#fb923c":"#778",fontSize:13,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>🚌 Trajets</button>
 <button onClick={()=>setAdminTab("colis")} style={{flex:1,padding:"9px 0",borderRadius:10,border:"1px solid",borderColor:adminTab==="colis"?"#f97316":"rgba(255,255,255,0.1)",background:adminTab==="colis"?"rgba(249,115,22,0.15)":"transparent",color:adminTab==="colis"?"#fb923c":"#778",fontSize:13,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>📦 Colis</button>
+<button onClick={loadAdminData} style={{padding:"9px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#778",fontSize:13,cursor:"pointer"}}>{busy?<span className="spinner"/>:"↻"}</button>
 </div>
 {adminTab==="trajets"&&<>
 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
@@ -152,12 +239,12 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div><div style={{fontSize:14,fontWeight:700}}>{r.client}</div><div style={{fontSize:12,color:"#778"}}>{r.phone}</div></div>
 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}><div style={{background:`${sc(r.status)}22`,border:`1px solid ${sc(r.status)}44`,color:sc(r.status),padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{r.status}</div>{r.payment&&<div style={{background:`${pc(r.payment)}18`,border:`1px solid ${pc(r.payment)}33`,color:pc(r.payment),padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>{r.payment}</div>}</div></div>
 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:12}}>
-{[["📍",`${r.from}→${r.to}`],["📅",new Date(r.date).toLocaleDateString("fr-FR")],["🕐",r.depart],["👥",`${r.seats}p`],["💰",`${r.price.toLocaleString()} FCFA`],["🆔",r.id]].map(([i,v])=><div key={`${r.id}-${v}`} style={{fontSize:12,color:"#a0b0d0"}}>{i} {v}</div>)}
+{[["📍",`${r.from_city}→${r.to_city}`],["📅",new Date(r.date).toLocaleDateString("fr-FR")],["🕐",r.depart],["👥",`${r.seats}p`],["💰",`${r.price.toLocaleString()} FCFA`],["🆔",r.id]].map(([i,v])=><div key={`${r.id}-${v}`} style={{fontSize:12,color:"#a0b0d0"}}>{i} {v}</div>)}
 </div>
 <div style={{display:"flex",gap:8}}>
-{r.status!=="confirmée"&&<button onClick={()=>setRes(p=>p.map(x=>x.id===r.id?{...x,status:"confirmée"}:x))} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(34,197,94,0.4)",background:"rgba(34,197,94,0.1)",color:"#22c55e",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✓ Confirmer</button>}
-{r.status!=="annulée"&&<button onClick={()=>setRes(p=>p.map(x=>x.id===r.id?{...x,status:"annulée"}:x))} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(245,158,11,0.4)",background:"rgba(245,158,11,0.1)",color:"#f59e0b",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✗ Annuler</button>}
-<button onClick={()=>setRes(p=>p.filter(x=>x.id!==r.id))} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(239,68,68,0.3)",background:"rgba(239,68,68,0.08)",color:"#ef4444",fontSize:14,cursor:"pointer"}}>🗑</button>
+{r.status!=="confirmée"&&<button onClick={()=>updateResStatus(r.id,"confirmée")} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(34,197,94,0.4)",background:"rgba(34,197,94,0.1)",color:"#22c55e",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✓ Confirmer</button>}
+{r.status!=="annulée"&&<button onClick={()=>updateResStatus(r.id,"annulée")} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(245,158,11,0.4)",background:"rgba(245,158,11,0.1)",color:"#f59e0b",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✗ Annuler</button>}
+<button onClick={()=>deleteRes(r.id)} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(239,68,68,0.3)",background:"rgba(239,68,68,0.08)",color:"#ef4444",fontSize:14,cursor:"pointer"}}>🗑</button>
 </div></div>)}
 </>}
 {adminTab==="colis"&&<>
@@ -172,12 +259,12 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div><div style={{fontSize:14,fontWeight:700}}>{r.sender} → {r.recip}</div><div style={{fontSize:12,color:"#778"}}>{r.code}</div></div>
 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}><div style={{background:`${sc(r.status)}22`,border:`1px solid ${sc(r.status)}44`,color:sc(r.status),padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{r.status}</div>{r.payment&&<div style={{background:`${pc(r.payment)}18`,border:`1px solid ${pc(r.payment)}33`,color:pc(r.payment),padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>{r.payment}</div>}</div></div>
 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:12}}>
-{[["📍",`${r.from}→${r.to}`],["⚖️",r.tier],["📞 exp.",r.senderPhone],["📞 dest.",r.recipPhone],["💰",`${r.price.toLocaleString()} FCFA`]].map(([i,v])=><div key={`${r.code}-${v}`} style={{fontSize:12,color:"#a0b0d0"}}>{i} {v}</div>)}
+{[["📍",`${r.from_city}→${r.to_city}`],["⚖️",r.tier],["📞 exp.",r.sender_phone],["📞 dest.",r.recip_phone],["💰",`${r.price.toLocaleString()} FCFA`]].map(([i,v])=><div key={`${r.code}-${v}`} style={{fontSize:12,color:"#a0b0d0"}}>{i} {v}</div>)}
 </div>
 <div style={{display:"flex",gap:8}}>
-{r.status!=="confirmée"&&<button onClick={()=>setColisRes(p=>p.map(x=>x.code===r.code?{...x,status:"confirmée"}:x))} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(34,197,94,0.4)",background:"rgba(34,197,94,0.1)",color:"#22c55e",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✓ Confirmer</button>}
-{r.status!=="annulée"&&<button onClick={()=>setColisRes(p=>p.map(x=>x.code===r.code?{...x,status:"annulée"}:x))} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(245,158,11,0.4)",background:"rgba(245,158,11,0.1)",color:"#f59e0b",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✗ Annuler</button>}
-<button onClick={()=>setColisRes(p=>p.filter(x=>x.code!==r.code))} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(239,68,68,0.3)",background:"rgba(239,68,68,0.08)",color:"#ef4444",fontSize:14,cursor:"pointer"}}>🗑</button>
+{r.status!=="confirmée"&&<button onClick={()=>updateColisStatus(r.code,"confirmée")} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(34,197,94,0.4)",background:"rgba(34,197,94,0.1)",color:"#22c55e",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✓ Confirmer</button>}
+{r.status!=="annulée"&&<button onClick={()=>updateColisStatus(r.code,"annulée")} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(245,158,11,0.4)",background:"rgba(245,158,11,0.1)",color:"#f59e0b",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✗ Annuler</button>}
+<button onClick={()=>deleteColis(r.code)} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(239,68,68,0.3)",background:"rgba(239,68,68,0.08)",color:"#ef4444",fontSize:14,cursor:"pointer"}}>🗑</button>
 </div></div>)}
 </>}
 </div></div>}
