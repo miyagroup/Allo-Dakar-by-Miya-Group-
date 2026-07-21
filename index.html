@@ -1,273 +1,623 @@
 <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Allo Dakar - by Miya Group</title><script src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#0a0f1e;font-family:'Sora',sans-serif}input,select{outline:none;border:none;background:none;color:#f0f4ff;font-family:'Sora',sans-serif;width:100%}input::placeholder{color:#445}select option{background:#151c35;color:#f0f4ff}@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}@keyframes toastIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}@keyframes spin{to{transform:rotate(360deg)}}.card{animation:fadeUp .4s ease forwards}.btn-primary{background:linear-gradient(135deg,#f97316,#f59e0b);border:none;color:#fff;padding:14px 24px;border-radius:14px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;cursor:pointer;width:100%;transition:all .2s}.btn-primary:disabled{opacity:.6;cursor:not-allowed}.btn-secondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#c8d0f0;padding:10px 18px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600;font-size:13px;cursor:pointer}.field{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 16px;transition:border .2s}.field:focus-within{border-color:#f97316}.field label{display:block;font-size:10px;font-weight:600;color:#7891b0;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}.route-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:10px;transition:all .2s}.depart-btn{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:#fdba74;padding:7px 14px;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin:4px}.tab-btn{padding:8px 16px;border-radius:10px;border:none;font-family:'Sora',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}.res-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:8px}.pay-card{border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;margin-bottom:10px}.tier-card{border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#f97316;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}</style></head><body><div id="root"></div><script type="text/babel">
+
 const{useState,useEffect}=React;
+
 const sb=window.supabase.createClient("https://dahiczjsgdzzjvcihuvi.supabase.co","sb_publishable_M-wLo5QG3EcB1Fjdi2tCuw_5zxE7vMK");
-const ROUTES=[{id:1,from:"Dakar",to:"Thiès",price:5000,duration:"1h00",departs:["06:00","08:00","10:00","14:00","17:00"]}];
-const CITIES=[...new Set(ROUTES.flatMap(r=>[r.from,r.to]))].sort();
+
+const DEPARTS=["06:00","08:00","10:00","14:00","17:00"];
+
+const VEHICLES=[{id:"7pl",label:"7 places",capacity:7},{id:"4pl",label:"4 places",capacity:4}];
+
+const ITINERAIRES=[
+{id:"A",label:"Itinéraire A",stops:["Mamelles","Virage","Rond-point Yoff","Patte d'Oie","Stade Lat Dior (Thiès)","Concorde","Hersent"],baseFrom:"Patte d'Oie",baseTo:"Stade Lat Dior (Thiès)"},
+{id:"B",label:"Itinéraire B",stops:["Mamelles","Mermoz","Rond-point Bethio","Eticca","Patte d'Oie","Stade Lat Dior","Auchan","Medina Fall"],baseFrom:"Patte d'Oie",baseTo:"Stade Lat Dior"}
+];
+
+function zonePrice(itin,fromStop,toStop){
+if(!itin||!fromStop||!toStop)return 0;
+const idx=s=>itin.stops.indexOf(s);
+const bStart=idx(itin.baseFrom),bEnd=idx(itin.baseTo);
+const lo=Math.min(idx(fromStop),idx(toStop)),hi=Math.max(idx(fromStop),idx(toStop));
+const before=Math.max(0,bStart-lo),after=Math.max(0,hi-bEnd);
+return 3000+500*(before+after);
+}
+
+const VILLES=["Dakar","Thiès"];
+
 const PM=[{id:"orange",label:"Orange Money",color:"#FF6B00",bg:"rgba(255,107,0,0.12)",icon:"🟠",hint:"77/78 XXX XX XX"},{id:"wave",label:"Wave",color:"#00BFFF",bg:"rgba(0,191,255,0.1)",icon:"🔵",hint:"70 XXX XX XX"}];
+
 const COLIS_TIERS=[{id:"leger",label:"Léger",sub:"jusqu'à 5 kg",price:3000},{id:"moyen",label:"Moyen",sub:"5 à 20 kg",price:4500},{id:"lourd",label:"Lourd",sub:"20 à 50 kg",price:6500}];
+
 const ADMIN_PWD="77bobomiya";
+
 function randCode(){const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return `AD-COL-${s}`}
-function randId(list){return `RES-${String(list.length+1).padStart(3,"0")}-${Math.floor(Math.random()*900+100)}`}
+
+function randId(list,itinId,vehId){return `RES-${itinId}-${vehId}-${String(list.length+1).padStart(3,"0")}-${Math.floor(Math.random()*900+100)}`}
+
 function App(){
+
 const[view,setView]=useState("client");
+
 const[adminOk,setAdminOk]=useState(false);
+
 const[adminInput,setAdminInput]=useState("");
+
 const[adminErr,setAdminErr]=useState(false);
+
 const[adminTab,setAdminTab]=useState("trajets");
+
 const[step,setStep]=useState(1);
+
 const[res,setRes]=useState([]);
-const[from,setFrom]=useState("");const[to,setTo]=useState("");
+
+const[itin,setItin]=useState(null);
+
+const[vehicle,setVehicle]=useState(null);
+
+const[fromStop,setFromStop]=useState("");const[toStop,setToStop]=useState("");
+
 const[date,setDate]=useState("");const[seats,setSeats]=useState(1);
-const[found,setFound]=useState([]);const[route,setRoute]=useState(null);
+
 const[depart,setDepart]=useState("");
+
 const[name,setName]=useState("");const[phone,setPhone]=useState("");
+
 const[pm,setPm]=useState("");const[pmPhone,setPmPhone]=useState("");
+
 const[filter,setFilter]=useState("toutes");
+
 const[toast,setToast]=useState(null);
+
 const[busy,setBusy]=useState(false);
+
 const[lastRes,setLastRes]=useState(null);
+
+const[seatsMap,setSeatsMap]=useState({});
+
+const[seatsLoading,setSeatsLoading]=useState(false);
+
 // --- colis state ---
+
 const[colisRes,setColisRes]=useState([]);
+
 const[cStep,setCStep]=useState(1);
+
 const[cFrom,setCFrom]=useState("");const[cTo,setCTo]=useState("");
+
 const[tier,setTier]=useState(null);
+
 const[desc,setDesc]=useState("");
+
 const[sender,setSender]=useState("");const[senderPhone,setSenderPhone]=useState("");
+
 const[recip,setRecip]=useState("");const[recipPhone,setRecipPhone]=useState("");
+
 const[cPm,setCPm]=useState("");const[cPmPhone,setCPmPhone]=useState("");
+
 const[cFilter,setCFilter]=useState("toutes");
+
 const[lastColis,setLastColis]=useState(null);
+
 // --- suivi state ---
+
 const[trackCode,setTrackCode]=useState("");
+
 const[trackResult,setTrackResult]=useState(null);
+
 const[trackType,setTrackType]=useState(null);
+
 const[trackSearched,setTrackSearched]=useState(false);
+
 const[trackBusy,setTrackBusy]=useState(false);
+
 const showToast=(msg,type="success")=>{setToast({msg,type});setTimeout(()=>setToast(null),3000)};
 
 async function loadAdminData(){
+
 setBusy(true);
+
 const[{data:r,error:e1},{data:c,error:e2}]=await Promise.all([
+
 sb.from("reservations").select("*").order("created_at",{ascending:false}),
+
 sb.from("colis").select("*").order("created_at",{ascending:false})
+
 ]);
+
 if(!e1)setRes(r||[]);
+
 if(!e2)setColisRes(c||[]);
+
 if(e1||e2)showToast("Erreur de chargement","error");
+
 setBusy(false);
+
 }
+
 useEffect(()=>{if(view==="admin"&&adminOk)loadAdminData()},[view,adminOk]);
 
-const search=()=>{if(!from||!to||!date)return showToast("Remplissez tous les champs","error");if(from===to)return showToast("Départ et arrivée identiques","error");const r=ROUTES.filter(r=>r.from===from&&r.to===to);if(!r.length)return showToast("Aucun trajet disponible","error");setFound(r);setStep(2)};
+async function loadSeatsMap(){
+
+if(!itin||!date||!vehicle)return;
+
+setSeatsLoading(true);
+
+const{data,error}=await sb.from("reservations").select("depart,seats,status").eq("date",date).like("id",`RES-${itin.id}-${vehicle.id}-%`);
+
+if(!error){
+
+const booked={};
+
+DEPARTS.forEach(d=>booked[d]=0);
+
+(data||[]).forEach(r=>{if(r.status!=="annulée")booked[r.depart]=(booked[r.depart]||0)+r.seats});
+
+const rem={};
+
+DEPARTS.forEach(d=>rem[d]=Math.max(0,vehicle.capacity-(booked[d]||0)));
+
+setSeatsMap(rem);
+
+}
+
+setSeatsLoading(false);
+
+}
+
+useEffect(()=>{
+
+if(step===2&&itin&&date&&vehicle){
+
+loadSeatsMap();
+
+const channel=sb.channel(`seats-${itin.id}-${vehicle.id}-${date}`).on("postgres_changes",{event:"*",schema:"public",table:"reservations"},()=>{loadSeatsMap()}).subscribe();
+
+return()=>{sb.removeChannel(channel)};
+
+}
+
+},[step,itin,date,vehicle]);
+
+const search=()=>{if(!itin||!fromStop||!toStop||!date||!vehicle)return showToast("Remplissez tous les champs","error");if(fromStop===toStop)return showToast("Départ et arrivée identiques","error");if(seats>vehicle.capacity)return showToast(`Ce véhicule accepte au maximum ${vehicle.capacity} places`,"error");setStep(2)};
+
 const book=async()=>{
+
 if(!name||!phone)return showToast("Nom et téléphone requis","error");
+
 if(!pm)return showToast("Choisissez un paiement","error");
+
 if(!pmPhone)return showToast("Entrez votre numéro","error");
+
 setBusy(true);
-const id=randId(res);
-const row={id,client:name,phone,from_city:route.from,to_city:route.to,date,depart,seats,price:route.price*seats,status:"en attente",payment:pm};
+
+const{data:existing}=await sb.from("reservations").select("seats,status").eq("date",date).eq("depart",depart).like("id",`RES-${itin.id}-${vehicle.id}-%`);
+
+const booked=(existing||[]).filter(r=>r.status!=="annulée").reduce((a,r)=>a+r.seats,0);
+
+if(booked+seats>vehicle.capacity){setBusy(false);showToast("Plus assez de places sur cet horaire","error");loadSeatsMap();return}
+
+const id=randId(res,itin.id,vehicle.id);
+
+const unitPrice=zonePrice(itin,fromStop,toStop);
+
+const row={id,client:name,phone,from_city:fromStop,to_city:toStop,date,depart,seats,price:unitPrice*seats,status:"en attente",payment:pm};
+
 const{error}=await sb.from("reservations").insert(row);
+
 setBusy(false);
+
 if(error){showToast("Erreur d'enregistrement","error");return}
-setLastRes(row);
+
+setLastRes({...row,itinLabel:itin.label,vehicleLabel:vehicle.label});
+
 setStep(4);
+
 };
-const reset=()=>{setStep(1);setFrom("");setTo("");setDate("");setSeats(1);setFound([]);setRoute(null);setDepart("");setName("");setPhone("");setPm("");setPmPhone("");setLastRes(null)};
+
+const reset=()=>{setStep(1);setItin(null);setVehicle(null);setFromStop("");setToStop("");setDate("");setSeats(1);setDepart("");setName("");setPhone("");setPm("");setPmPhone("");setLastRes(null)};
+
 // --- colis actions ---
-const cSearch=()=>{if(!cFrom||!cTo)return showToast("Choisissez départ et arrivée","error");if(cFrom===cTo)return showToast("Départ et arrivée identiques","error");const ok=ROUTES.some(r=>r.from===cFrom&&r.to===cTo);if(!ok)return showToast("Trajet colis indisponible","error");setCStep(2)};
+
+const cSearch=()=>{if(!cFrom||!cTo)return showToast("Choisissez départ et arrivée","error");if(cFrom===cTo)return showToast("Départ et arrivée identiques","error");setCStep(2)};
+
 const cBook=async()=>{
+
 if(!sender||!senderPhone||!recip||!recipPhone)return showToast("Toutes les infos sont requises","error");
+
 if(!cPm)return showToast("Choisissez un paiement","error");
+
 if(!cPmPhone)return showToast("Entrez votre numéro","error");
+
 setBusy(true);
+
 const row={code:randCode(),from_city:cFrom,to_city:cTo,tier:tier.label,description:desc,sender,sender_phone:senderPhone,recip,recip_phone:recipPhone,price:tier.price,status:"en attente",payment:cPm};
+
 const{error}=await sb.from("colis").insert(row);
+
 setBusy(false);
+
 if(error){showToast("Erreur d'enregistrement","error");return}
+
 setLastColis(row);
+
 setCStep(4);
+
 };
+
 const cReset=()=>{setCStep(1);setCFrom("");setCTo("");setTier(null);setDesc("");setSender("");setSenderPhone("");setRecip("");setRecipPhone("");setCPm("");setCPmPhone("");setLastColis(null)};
+
 const copyCode=code=>{navigator.clipboard?.writeText(code).catch(()=>{});showToast("Code copié ✓")};
+
 // --- admin update actions ---
+
 const updateResStatus=async(id,status)=>{const{error}=await sb.from("reservations").update({status}).eq("id",id);if(error)return showToast("Erreur","error");setRes(p=>p.map(x=>x.id===id?{...x,status}:x))};
+
 const deleteRes=async(id)=>{const{error}=await sb.from("reservations").delete().eq("id",id);if(error)return showToast("Erreur","error");setRes(p=>p.filter(x=>x.id!==id))};
+
 const updateColisStatus=async(code,status)=>{const{error}=await sb.from("colis").update({status}).eq("code",code);if(error)return showToast("Erreur","error");setColisRes(p=>p.map(x=>x.code===code?{...x,status}:x))};
+
 const deleteColis=async(code)=>{const{error}=await sb.from("colis").delete().eq("code",code);if(error)return showToast("Erreur","error");setColisRes(p=>p.filter(x=>x.code!==code))};
+
 // --- suivi (client tracking) ---
+
 const trackSearch=async()=>{
+
 const code=trackCode.trim().toUpperCase();
+
 if(!code)return showToast("Entrez un code","error");
+
 setTrackBusy(true);setTrackSearched(false);setTrackResult(null);setTrackType(null);
+
 const{data:r}=await sb.from("reservations").select("*").eq("id",code).maybeSingle();
+
 if(r){setTrackResult(r);setTrackType("trajet");setTrackBusy(false);setTrackSearched(true);return}
+
 const{data:c}=await sb.from("colis").select("*").eq("code",code).maybeSingle();
+
 if(c){setTrackResult(c);setTrackType("colis")}
+
 setTrackBusy(false);setTrackSearched(true);
+
 };
+
 const sc=s=>s==="confirmée"?"#22c55e":s==="annulée"?"#ef4444":"#f59e0b";
+
 const pc=p=>p==="Orange Money"?"#FF6B00":"#00BFFF";
+
 const selPm=PM.find(p=>p.label===pm);
+
 const selCPm=PM.find(p=>p.label===cPm);
+
 const filtered=filter==="toutes"?res:res.filter(r=>r.status===filter);
+
 const cFiltered=cFilter==="toutes"?colisRes:colisRes.filter(r=>r.status===cFilter);
+
 const revenue=res.filter(r=>r.status==="confirmée").reduce((a,r)=>a+r.price,0);
+
 const colisRevenue=colisRes.filter(r=>r.status==="confirmée").reduce((a,r)=>a+r.price,0);
+
 const tryAdmin=()=>{if(adminInput===ADMIN_PWD){setAdminOk(true);setAdminErr(false)}else{setAdminErr(true)}};
+
+const currentUnitPrice=zonePrice(itin,fromStop,toStop);
+
 return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:"#0a0f1e",color:"#f0f4ff",display:"flex",flexDirection:"column",alignItems:"center"}}>
+
 {toast&&<div style={{position:"fixed",top:20,right:20,zIndex:9999,background:toast.type==="error"?"#ef4444":"#22c55e",color:"white",padding:"12px 20px",borderRadius:12,fontWeight:600,fontSize:14,animation:"toastIn 0.3s ease"}}>{toast.msg}</div>}
+
 <div style={{width:"100%",maxWidth:430,padding:"20px 20px 0"}}>
+
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24,flexWrap:"wrap",gap:10}}>
+
 <div><div style={{fontSize:22,fontWeight:800}}>🚌 <span style={{background:"linear-gradient(135deg,#f97316,#f59e0b)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Allo Dakar</span></div><div style={{fontSize:11,color:"#556",marginTop:2}}>by <span style={{color:"#f59e0b",fontWeight:600}}>Miya Group</span></div></div>
+
 <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+
 <button className="tab-btn" onClick={()=>{setView("client");reset()}} style={{background:view==="client"?"linear-gradient(135deg,#f97316,#f59e0b)":"rgba(255,255,255,0.07)",color:view==="client"?"white":"#aaa"}}>Client</button>
+
 <button className="tab-btn" onClick={()=>{setView("colis");cReset()}} style={{background:view==="colis"?"linear-gradient(135deg,#f97316,#f59e0b)":"rgba(255,255,255,0.07)",color:view==="colis"?"white":"#aaa"}}>📦 Colis</button>
+
 <button className="tab-btn" onClick={()=>{setView("suivi");setTrackCode("");setTrackResult(null);setTrackSearched(false)}} style={{background:view==="suivi"?"linear-gradient(135deg,#f97316,#f59e0b)":"rgba(255,255,255,0.07)",color:view==="suivi"?"white":"#aaa"}}>🔍 Suivi</button>
+
 <button className="tab-btn" onClick={()=>setView("admin")} style={{background:view==="admin"?"linear-gradient(135deg,#f97316,#f59e0b)":"rgba(255,255,255,0.07)",color:view==="admin"?"white":"#aaa"}}>Admin</button>
+
 </div>
+
 </div></div>
+
 {view==="client"&&<div style={{width:"100%",maxWidth:430,padding:"0 20px 40px",flex:1}}>
-{step===1&&<div className="card"><div style={{fontSize:20,fontWeight:800,marginBottom:4}}>Réservez votre voyage</div><div style={{fontSize:13,color:"#778",marginBottom:24}}>Partout au Sénégal 🇸🇳</div>
+
+{step===1&&<div className="card"><div style={{fontSize:20,fontWeight:800,marginBottom:4}}>Réservez votre voyage</div><div style={{fontSize:13,color:"#778",marginBottom:24}}>Tarification par zones 🇸🇳</div>
+
 <div style={{display:"grid",gap:12}}>
-<div className="field"><label>Ville de départ</label><select value={from} onChange={e=>setFrom(e.target.value)} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{CITIES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
-<div style={{display:"flex",justifyContent:"center"}}><div onClick={()=>{const t=from;setFrom(to);setTo(t)}} style={{width:36,height:36,borderRadius:"50%",background:"rgba(249,115,22,0.15)",border:"1px solid rgba(249,115,22,0.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,cursor:"pointer"}}>⇅</div></div>
-<div className="field"><label>Ville d'arrivée</label><select value={to} onChange={e=>setTo(e.target.value)} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{CITIES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+
+<div className="field"><label>Itinéraire</label><select value={itin?.id||""} onChange={e=>{const found=ITINERAIRES.find(i=>i.id===e.target.value)||null;setItin(found);setFromStop("");setToStop("")}} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{ITINERAIRES.map(i=><option key={i.id} value={i.id}>{i.label}</option>)}</select></div>
+
+<div className="field"><label>Point de départ</label><select value={fromStop} onChange={e=>setFromStop(e.target.value)} disabled={!itin} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{(itin?.stops||[]).map(s=><option key={s} value={s}>{s}</option>)}</select></div>
+
+<div style={{display:"flex",justifyContent:"center"}}><div onClick={()=>{const t=fromStop;setFromStop(toStop);setToStop(t)}} style={{width:36,height:36,borderRadius:"50%",background:"rgba(249,115,22,0.15)",border:"1px solid rgba(249,115,22,0.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,cursor:"pointer"}}>⇅</div></div>
+
+<div className="field"><label>Point d'arrivée</label><select value={toStop} onChange={e=>setToStop(e.target.value)} disabled={!itin} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{(itin?.stops||[]).map(s=><option key={s} value={s}>{s}</option>)}</select></div>
+
+<div className="field"><label>Catégorie de véhicule</label><select value={vehicle?.id||""} onChange={e=>{const v=VEHICLES.find(v=>v.id===e.target.value)||null;setVehicle(v);if(v&&seats>v.capacity)setSeats(v.capacity)}} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{VEHICLES.map(v=><option key={v.id} value={v.id}>{v.label}</option>)}</select></div>
+
 <div className="field"><label>Date</label><input type="date" value={date} onChange={e=>setDate(e.target.value)} min={new Date().toISOString().split("T")[0]} style={{fontSize:15,fontWeight:600}}/></div>
-<div className="field"><label>Places</label><div style={{display:"flex",alignItems:"center",gap:16}}><button onClick={()=>setSeats(s=>Math.max(1,s-1))} style={{width:30,height:30,borderRadius:"50%",background:"rgba(255,255,255,0.1)",border:"none",color:"white",fontSize:18,cursor:"pointer"}}>−</button><span style={{fontSize:20,fontWeight:700}}>{seats}</span><button onClick={()=>setSeats(s=>Math.min(8,s+1))} style={{width:30,height:30,borderRadius:"50%",background:"rgba(249,115,22,0.3)",border:"none",color:"white",fontSize:18,cursor:"pointer"}}>+</button></div></div>
-</div><div style={{marginTop:24}}><button className="btn-primary" onClick={search}>Rechercher →</button></div></div>}
-{step===2&&<div className="card"><button className="btn-secondary" onClick={()=>setStep(1)} style={{marginBottom:20}}>← Retour</button><div style={{fontSize:18,fontWeight:700,marginBottom:4}}>{from} → {to}</div><div style={{fontSize:12,color:"#778",marginBottom:20}}>{new Date(date).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})} · {seats} place{seats>1?"s":""}</div>
-{found.map(r=><div key={r.id} className="route-card"><div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><div><div style={{fontSize:15,fontWeight:700}}>{r.from} → {r.to}</div><div style={{fontSize:12,color:"#778"}}>⏱ {r.duration}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:800,color:"#fb923c"}}>{(r.price*seats).toLocaleString()} FCFA</div><div style={{fontSize:11,color:"#556"}}>{r.price.toLocaleString()} FCFA/pers.</div></div></div><div style={{fontSize:12,color:"#778",marginBottom:8}}>Choisir un horaire :</div><div style={{display:"flex",flexWrap:"wrap"}}>{r.departs.map(d=><button key={d} className="depart-btn" onClick={()=>{setRoute(r);setDepart(d);setStep(3)}}>🕐 {d}</button>)}</div></div>)}
+
+<div className="field"><label>Places</label><div style={{display:"flex",alignItems:"center",gap:16}}><button onClick={()=>setSeats(s=>Math.max(1,s-1))} style={{width:30,height:30,borderRadius:"50%",background:"rgba(255,255,255,0.1)",border:"none",color:"white",fontSize:18,cursor:"pointer"}}>−</button><span style={{fontSize:20,fontWeight:700}}>{seats}</span><button onClick={()=>setSeats(s=>Math.min(vehicle?.capacity||8,s+1))} style={{width:30,height:30,borderRadius:"50%",background:"rgba(249,115,22,0.3)",border:"none",color:"white",fontSize:18,cursor:"pointer"}}>+</button></div></div>
+
+</div>
+
+{itin&&fromStop&&toStop&&fromStop!==toStop&&<div style={{marginTop:16,background:"rgba(249,115,22,0.08)",border:"1px solid rgba(249,115,22,0.25)",borderRadius:12,padding:"10px 14px",fontSize:13,color:"#fdba74"}}>Tarif estimé : <b>{(currentUnitPrice*seats).toLocaleString()} FCFA</b> ({currentUnitPrice.toLocaleString()} FCFA/pers.)</div>}
+
+<div style={{marginTop:24}}><button className="btn-primary" onClick={search}>Rechercher →</button></div></div>}
+
+{step===2&&<div className="card"><button className="btn-secondary" onClick={()=>setStep(1)} style={{marginBottom:20}}>← Retour</button><div style={{fontSize:18,fontWeight:700,marginBottom:4}}>{fromStop} → {toStop}</div><div style={{fontSize:12,color:"#778",marginBottom:20}}>{itin.label} · {new Date(date).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})} · {seats} place{seats>1?"s":""}</div>
+
+<div className="route-card"><div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><div><div style={{fontSize:15,fontWeight:700}}>{fromStop} → {toStop}</div><div style={{fontSize:12,color:"#778"}}>⏱ {itin.label} · 🚗 {vehicle.label}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:800,color:"#fb923c"}}>{(currentUnitPrice*seats).toLocaleString()} FCFA</div><div style={{fontSize:11,color:"#556"}}>{currentUnitPrice.toLocaleString()} FCFA/pers.</div></div></div><div style={{fontSize:12,color:"#778",marginBottom:8}}>Choisir un horaire : {seatsLoading&&<span className="spinner" style={{marginLeft:8}}/>}</div><div style={{display:"flex",flexWrap:"wrap"}}>{DEPARTS.map(d=>{const rem=seatsMap[d];const full=rem!==undefined&&rem<=0;const insufficient=rem!==undefined&&rem<seats;return<button key={d} className="depart-btn" disabled={full} onClick={()=>{if(insufficient)return showToast("Places insuffisantes pour cet horaire","error");setDepart(d);setStep(3)}} style={{opacity:full?0.4:1,cursor:full?"not-allowed":"pointer"}}>🕐 {d}{rem!==undefined&&<span style={{fontSize:11,marginLeft:6,color:full?"#ef4444":"#9ca3af"}}>({full?"complet":`${rem} pl.`})</span>}</button>})}</div></div>
+
 </div>}
+
 {step===3&&<div className="card"><button className="btn-secondary" onClick={()=>setStep(2)} style={{marginBottom:20}}>← Retour</button>
-<div style={{background:"linear-gradient(135deg,rgba(249,115,22,0.12),rgba(245,158,11,0.08))",border:"1px solid rgba(249,115,22,0.25)",borderRadius:14,padding:16,marginBottom:24}}><div style={{fontSize:16,fontWeight:700}}>{route.from} → {route.to}</div><div style={{display:"flex",gap:14,marginTop:8,fontSize:13,color:"#c0a080",flexWrap:"wrap"}}><span>📅 {new Date(date).toLocaleDateString("fr-FR")}</span><span>🕐 {depart}</span><span>👥 {seats} place{seats>1?"s":""}</span></div><div style={{fontSize:22,fontWeight:800,color:"#fb923c",marginTop:8}}>{(route.price*seats).toLocaleString()} FCFA</div></div>
+
+<div style={{background:"linear-gradient(135deg,rgba(249,115,22,0.12),rgba(245,158,11,0.08))",border:"1px solid rgba(249,115,22,0.25)",borderRadius:14,padding:16,marginBottom:24}}><div style={{fontSize:16,fontWeight:700}}>{fromStop} → {toStop}</div><div style={{display:"flex",gap:14,marginTop:8,fontSize:13,color:"#c0a080",flexWrap:"wrap"}}><span>📅 {new Date(date).toLocaleDateString("fr-FR")}</span><span>🕐 {depart}</span><span>👥 {seats} place{seats>1?"s":""}</span></div><div style={{fontSize:22,fontWeight:800,color:"#fb923c",marginTop:8}}>{(currentUnitPrice*seats).toLocaleString()} FCFA</div></div>
+
 <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#d0c0b0",textTransform:"uppercase"}}>👤 Vos informations</div>
+
 <div style={{display:"grid",gap:12,marginBottom:24}}><div className="field"><label>Nom complet *</label><input value={name} onChange={e=>setName(e.target.value)} placeholder="Ex: Oumar Diallo" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div><div className="field"><label>Téléphone *</label><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="77 123 45 67" type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></div>
+
 <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#d0c0b0",textTransform:"uppercase"}}>💳 Mode de paiement</div>
+
 {PM.map(p=><div key={p.id} className="pay-card" onClick={()=>{setPm(p.label);setPmPhone("")}} style={{background:pm===p.label?p.bg:"rgba(255,255,255,0.04)",border:`2px solid ${pm===p.label?p.color:"rgba(255,255,255,0.08)"}`}}><div style={{fontSize:30}}>{p.icon}</div><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:pm===p.label?p.color:"#e0e8ff"}}>{p.label}</div><div style={{fontSize:11,color:"#778"}}>Paiement mobile sécurisé</div></div><div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${pm===p.label?p.color:"#445"}`,background:pm===p.label?p.color:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"white"}}>{pm===p.label?"✓":""}</div></div>)}
+
 {pm&&selPm&&<><div style={{background:selPm.bg,border:`1px solid ${selPm.color}55`,borderRadius:12,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:14}}><div style={{fontSize:28}}>{selPm.icon}</div><div><div style={{fontSize:10,color:"#778",textTransform:"uppercase",fontWeight:600}}>Envoyez le paiement au</div><div style={{fontSize:22,fontWeight:800,color:selPm.color,marginTop:3}}>77 591 91 00</div><div style={{fontSize:11,color:"#a0a8c0",marginTop:3}}>Nom : <span style={{color:"#f59e0b",fontWeight:700}}>Miya Group</span></div></div></div><div className="field" style={{marginBottom:24,borderColor:selPm.color+"66"}}><label>Votre numéro {pm} *</label><input value={pmPhone} onChange={e=>setPmPhone(e.target.value)} placeholder={selPm.hint} type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></>}
+
 <button className="btn-primary" onClick={book} disabled={busy}>{busy?<span className="spinner"/>:`Payer et Réserver ${pm?`via ${pm}`:""} ✓`}</button></div>}
+
 {step===4&&lastRes&&<div className="card" style={{textAlign:"center"}}><div style={{fontSize:64,marginBottom:16}}>✅</div><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Réservation envoyée !</div><div style={{fontSize:14,color:"#778",marginBottom:24}}>Vous serez contacté pour confirmer. Gardez votre ID pour vérifier le statut.</div>
+
 <div onClick={()=>copyCode(lastRes.id)} style={{background:"linear-gradient(135deg,rgba(249,115,22,0.15),rgba(245,158,11,0.1))",border:"1px solid rgba(249,115,22,0.3)",borderRadius:14,padding:"16px",marginBottom:16,fontSize:18,fontWeight:800,letterSpacing:1,color:"#fb923c",cursor:"pointer"}}>{lastRes.id} <span style={{fontSize:13,color:"#c0a080"}}>(copier)</span></div>
+
 <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20,marginBottom:16,textAlign:"left"}}>
-{[["👤","Nom",name],["📍","Trajet",`${route?.from} → ${route?.to}`],["📅","Date",new Date(date).toLocaleDateString("fr-FR")],["🕐","Départ",depart],["👥","Places",`${seats} place${seats>1?"s":""}`],["💰","Total",`${(route?.price*seats)?.toLocaleString()} FCFA`],["💳","Paiement",pm]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}><span style={{color:"#778"}}>{i} {k}</span><span style={{fontWeight:600,color:k==="Paiement"?pc(v):"#f0f4ff"}}>{v}</span></div>)}
+
+{[["👤","Nom",name],["🧭","Itinéraire",lastRes.itinLabel],["🚗","Véhicule",lastRes.vehicleLabel],["📍","Trajet",`${lastRes.from_city} → ${lastRes.to_city}`],["📅","Date",new Date(date).toLocaleDateString("fr-FR")],["🕐","Départ",depart],["👥","Places",`${seats} place${seats>1?"s":""}`],["💰","Total",`${lastRes.price?.toLocaleString()} FCFA`],["💳","Paiement",pm]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}><span style={{color:"#778"}}>{i} {k}</span><span style={{fontWeight:600,color:k==="Paiement"?pc(v):"#f0f4ff"}}>{v}</span></div>)}
+
 </div>
+
 <div style={{background:"rgba(245,158,11,0.1)",border:"1px solid rgba(245,158,11,0.3)",borderRadius:12,padding:12,marginBottom:24,fontSize:13,color:"#fbbf24"}}>⏳ En attente de confirmation</div>
+
 <button className="btn-primary" onClick={reset}>Nouvelle réservation</button></div>}
+
 </div>}
+
 {view==="colis"&&<div style={{width:"100%",maxWidth:430,padding:"0 20px 40px",flex:1}}>
+
 {cStep===1&&<div className="card"><div style={{fontSize:20,fontWeight:800,marginBottom:4}}>Envoyez un colis 📦</div><div style={{fontSize:13,color:"#778",marginBottom:24}}>Rapide et sécurisé</div>
+
 <div style={{display:"grid",gap:12}}>
-<div className="field"><label>Ville de dépôt</label><select value={cFrom} onChange={e=>setCFrom(e.target.value)} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{CITIES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+
+<div className="field"><label>Ville de dépôt</label><select value={cFrom} onChange={e=>setCFrom(e.target.value)} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{VILLES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+
 <div style={{display:"flex",justifyContent:"center"}}><div onClick={()=>{const t=cFrom;setCFrom(cTo);setCTo(t)}} style={{width:36,height:36,borderRadius:"50%",background:"rgba(249,115,22,0.15)",border:"1px solid rgba(249,115,22,0.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,cursor:"pointer"}}>⇅</div></div>
-<div className="field"><label>Ville de retrait</label><select value={cTo} onChange={e=>setCTo(e.target.value)} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{CITIES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+
+<div className="field"><label>Ville de retrait</label><select value={cTo} onChange={e=>setCTo(e.target.value)} style={{fontSize:15,fontWeight:600}}><option value="">Choisir...</option>{VILLES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+
 </div>
+
 <div style={{fontSize:13,fontWeight:700,margin:"20px 0 12px",color:"#d0c0b0",textTransform:"uppercase"}}>⚖️ Type de colis</div>
+
 {COLIS_TIERS.map(t=><div key={t.id} className="tier-card" onClick={()=>setTier(t)} style={{background:tier?.id===t.id?"rgba(249,115,22,0.1)":"rgba(255,255,255,0.04)",border:`2px solid ${tier?.id===t.id?"#f97316":"rgba(255,255,255,0.08)"}`}}>
+
 <div><div style={{fontSize:14,fontWeight:700,color:tier?.id===t.id?"#fb923c":"#e0e8ff"}}>{t.label}</div><div style={{fontSize:12,color:"#778"}}>{t.sub}</div></div>
+
 <div style={{fontSize:16,fontWeight:800,color:"#fb923c"}}>{t.price.toLocaleString()} FCFA</div>
+
 </div>)}
+
 <div className="field" style={{marginTop:12}}><label>Description (optionnel)</label><input value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Ex: vêtements, documents..." style={{fontSize:15,fontWeight:600,marginTop:2}}/></div>
+
 <div style={{marginTop:24}}><button className="btn-primary" onClick={()=>{if(!tier)return showToast("Choisissez un type de colis","error");cSearch()}}>Continuer →</button></div>
+
 </div>}
+
 {cStep===2&&<div className="card"><button className="btn-secondary" onClick={()=>setCStep(1)} style={{marginBottom:20}}>← Retour</button>
+
 <div style={{background:"linear-gradient(135deg,rgba(249,115,22,0.12),rgba(245,158,11,0.08))",border:"1px solid rgba(249,115,22,0.25)",borderRadius:14,padding:16,marginBottom:24}}><div style={{fontSize:16,fontWeight:700}}>{cFrom} → {cTo}</div><div style={{fontSize:13,color:"#c0a080",marginTop:6}}>{tier.label} · {tier.sub}</div><div style={{fontSize:22,fontWeight:800,color:"#fb923c",marginTop:8}}>{tier.price.toLocaleString()} FCFA</div></div>
+
 <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#d0c0b0",textTransform:"uppercase"}}>📤 Expéditeur</div>
+
 <div style={{display:"grid",gap:12,marginBottom:20}}><div className="field"><label>Nom complet *</label><input value={sender} onChange={e=>setSender(e.target.value)} placeholder="Nom de l'expéditeur" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div><div className="field"><label>Téléphone *</label><input value={senderPhone} onChange={e=>setSenderPhone(e.target.value)} placeholder="77 123 45 67" type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></div>
+
 <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#d0c0b0",textTransform:"uppercase"}}>📥 Destinataire</div>
+
 <div style={{display:"grid",gap:12,marginBottom:24}}><div className="field"><label>Nom complet *</label><input value={recip} onChange={e=>setRecip(e.target.value)} placeholder="Nom du destinataire" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div><div className="field"><label>Téléphone *</label><input value={recipPhone} onChange={e=>setRecipPhone(e.target.value)} placeholder="78 234 56 78" type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></div>
+
 <button className="btn-primary" onClick={()=>{if(!sender||!senderPhone||!recip||!recipPhone)return showToast("Toutes les infos sont requises","error");setCStep(3)}}>Continuer →</button>
+
 </div>}
+
 {cStep===3&&<div className="card"><button className="btn-secondary" onClick={()=>setCStep(2)} style={{marginBottom:20}}>← Retour</button>
+
 <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"#d0c0b0",textTransform:"uppercase"}}>💳 Mode de paiement</div>
+
 {PM.map(p=><div key={p.id} className="pay-card" onClick={()=>{setCPm(p.label);setCPmPhone("")}} style={{background:cPm===p.label?p.bg:"rgba(255,255,255,0.04)",border:`2px solid ${cPm===p.label?p.color:"rgba(255,255,255,0.08)"}`}}><div style={{fontSize:30}}>{p.icon}</div><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:cPm===p.label?p.color:"#e0e8ff"}}>{p.label}</div><div style={{fontSize:11,color:"#778"}}>Paiement mobile sécurisé</div></div><div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${cPm===p.label?p.color:"#445"}`,background:cPm===p.label?p.color:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"white"}}>{cPm===p.label?"✓":""}</div></div>)}
+
 {cPm&&selCPm&&<><div style={{background:selCPm.bg,border:`1px solid ${selCPm.color}55`,borderRadius:12,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:14}}><div style={{fontSize:28}}>{selCPm.icon}</div><div><div style={{fontSize:10,color:"#778",textTransform:"uppercase",fontWeight:600}}>Envoyez le paiement au</div><div style={{fontSize:22,fontWeight:800,color:selCPm.color,marginTop:3}}>77 591 91 00</div><div style={{fontSize:11,color:"#a0a8c0",marginTop:3}}>Nom : <span style={{color:"#f59e0b",fontWeight:700}}>Miya Group</span></div></div></div><div className="field" style={{marginBottom:24,borderColor:selCPm.color+"66"}}><label>Votre numéro {cPm} *</label><input value={cPmPhone} onChange={e=>setCPmPhone(e.target.value)} placeholder={selCPm.hint} type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></>}
+
 <button className="btn-primary" onClick={cBook} disabled={busy}>{busy?<span className="spinner"/>:`Payer et Envoyer ${cPm?`via ${cPm}`:""} ✓`}</button></div>}
+
 {cStep===4&&lastColis&&<div className="card" style={{textAlign:"center"}}><div style={{fontSize:64,marginBottom:16}}>✅</div><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Colis enregistré !</div><div style={{fontSize:14,color:"#778",marginBottom:24}}>Gardez ce code pour le suivi et le retrait.</div>
+
 <div onClick={()=>copyCode(lastColis.code)} style={{background:"linear-gradient(135deg,rgba(249,115,22,0.15),rgba(245,158,11,0.1))",border:"1px solid rgba(249,115,22,0.3)",borderRadius:14,padding:"16px",marginBottom:16,fontSize:20,fontWeight:800,letterSpacing:1,color:"#fb923c",cursor:"pointer"}}>{lastColis.code} <span style={{fontSize:13,color:"#c0a080"}}>(copier)</span></div>
+
 <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20,marginBottom:16,textAlign:"left"}}>
+
 {[["📍","Trajet",`${lastColis.from_city} → ${lastColis.to_city}`],["⚖️","Type",lastColis.tier],["📤","Expéditeur",`${lastColis.sender} (${lastColis.sender_phone})`],["📥","Destinataire",`${lastColis.recip} (${lastColis.recip_phone})`],["💰","Total",`${lastColis.price.toLocaleString()} FCFA`],["💳","Paiement",lastColis.payment]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8,gap:10}}><span style={{color:"#778",flexShrink:0}}>{i} {k}</span><span style={{fontWeight:600,color:k==="Paiement"?pc(v):"#f0f4ff",textAlign:"right"}}>{v}</span></div>)}
+
 </div>
+
 <div style={{background:"rgba(245,158,11,0.1)",border:"1px solid rgba(245,158,11,0.3)",borderRadius:12,padding:12,marginBottom:24,fontSize:13,color:"#fbbf24"}}>⏳ En attente de confirmation</div>
+
 <button className="btn-primary" onClick={cReset}>Envoyer un autre colis</button></div>}
+
 </div>}
+
 {view==="suivi"&&<div style={{width:"100%",maxWidth:430,padding:"0 20px 40px",flex:1}}>
+
 <div className="card">
+
 <div style={{fontSize:20,fontWeight:800,marginBottom:4}}>Vérifier un statut 🔍</div>
+
 <div style={{fontSize:13,color:"#778",marginBottom:24}}>Entrez votre ID de réservation ou code colis</div>
-<div className="field" style={{marginBottom:16}}><label>Code</label><input value={trackCode} onChange={e=>setTrackCode(e.target.value)} onKeyDown={e=>e.key==="Enter"&&trackSearch()} placeholder="Ex: RES-001-123 ou AD-COL-XXXXXX" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div>
+
+<div className="field" style={{marginBottom:16}}><label>Code</label><input value={trackCode} onChange={e=>setTrackCode(e.target.value)} onKeyDown={e=>e.key==="Enter"&&trackSearch()} placeholder="Ex: RES-A-001-123 ou AD-COL-XXXXXX" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div>
+
 <button className="btn-primary" onClick={trackSearch} disabled={trackBusy}>{trackBusy?<span className="spinner"/>:"Vérifier →"}</button>
+
 {trackSearched&&!trackResult&&<div style={{textAlign:"center",padding:"30px 0",color:"#556",fontSize:14}}>Aucun résultat pour ce code.</div>}
+
 {trackResult&&trackType==="trajet"&&<div style={{marginTop:20,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20}}>
+
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+
 <div style={{fontSize:16,fontWeight:700}}>{trackResult.from_city} → {trackResult.to_city}</div>
+
 <div style={{background:`${sc(trackResult.status)}22`,border:`1px solid ${sc(trackResult.status)}44`,color:sc(trackResult.status),padding:"3px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>{trackResult.status}</div>
+
 </div>
+
 {[["👤","Nom",trackResult.client],["📅","Date",new Date(trackResult.date).toLocaleDateString("fr-FR")],["🕐","Départ",trackResult.depart],["👥","Places",trackResult.seats],["💰","Total",`${trackResult.price.toLocaleString()} FCFA`]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}><span style={{color:"#778"}}>{i} {k}</span><span style={{fontWeight:600}}>{v}</span></div>)}
+
 </div>}
+
 {trackResult&&trackType==="colis"&&<div style={{marginTop:20,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20}}>
+
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+
 <div style={{fontSize:16,fontWeight:700}}>{trackResult.from_city} → {trackResult.to_city}</div>
+
 <div style={{background:`${sc(trackResult.status)}22`,border:`1px solid ${sc(trackResult.status)}44`,color:sc(trackResult.status),padding:"3px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>{trackResult.status}</div>
+
 </div>
+
 {[["⚖️","Type",trackResult.tier],["📤","Expéditeur",trackResult.sender],["📥","Destinataire",trackResult.recip],["💰","Total",`${trackResult.price.toLocaleString()} FCFA`]].map(([i,k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}><span style={{color:"#778"}}>{i} {k}</span><span style={{fontWeight:600}}>{v}</span></div>)}
+
 </div>}
+
 </div>
+
 </div>}
+
 {view==="admin"&&!adminOk&&<div style={{width:"100%",maxWidth:430,padding:"0 20px 40px"}}><div className="card" style={{textAlign:"center",paddingTop:40}}>
+
 <div style={{fontSize:56,marginBottom:16}}>🔐</div>
+
 <div style={{fontSize:20,fontWeight:800,marginBottom:8}}>Accès Admin</div>
+
 <div style={{fontSize:13,color:"#778",marginBottom:24}}>Entrez le mot de passe</div>
+
 <div className="field" style={{marginBottom:12,textAlign:"left"}}><label>Mot de passe</label><input type="password" value={adminInput} onChange={e=>setAdminInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&tryAdmin()} placeholder="••••••••" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div>
+
 {adminErr&&<div style={{color:"#ef4444",fontSize:13,marginBottom:12}}>Mot de passe incorrect ❌</div>}
+
 <button className="btn-primary" onClick={tryAdmin}>Connexion →</button>
+
 </div></div>}
+
 {view==="admin"&&adminOk&&<div style={{width:"100%",maxWidth:430,padding:"0 20px 40px"}}><div className="card">
+
 <div style={{display:"flex",gap:8,marginBottom:20}}>
+
 <button onClick={()=>setAdminTab("trajets")} style={{flex:1,padding:"9px 0",borderRadius:10,border:"1px solid",borderColor:adminTab==="trajets"?"#f97316":"rgba(255,255,255,0.1)",background:adminTab==="trajets"?"rgba(249,115,22,0.15)":"transparent",color:adminTab==="trajets"?"#fb923c":"#778",fontSize:13,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>🚌 Trajets</button>
+
 <button onClick={()=>setAdminTab("colis")} style={{flex:1,padding:"9px 0",borderRadius:10,border:"1px solid",borderColor:adminTab==="colis"?"#f97316":"rgba(255,255,255,0.1)",background:adminTab==="colis"?"rgba(249,115,22,0.15)":"transparent",color:adminTab==="colis"?"#fb923c":"#778",fontSize:13,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>📦 Colis</button>
+
 <button onClick={loadAdminData} style={{padding:"9px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#778",fontSize:13,cursor:"pointer"}}>{busy?<span className="spinner"/>:"↻"}</button>
+
 </div>
+
 {adminTab==="trajets"&&<>
+
 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+
 {[{l:"Total",v:res.length,c:"#fb923c"},{l:"Confirmées",v:res.filter(r=>r.status==="confirmée").length,c:"#22c55e"},{l:"Revenus",v:`${(revenue/1000).toFixed(0)}k`,c:"#f59e0b"}].map(s=><div key={s.l} style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:12,padding:"12px 10px",textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:11,color:"#556",marginTop:3}}>{s.l}</div></div>)}
+
 </div>
+
 <div style={{display:"flex",gap:8,marginBottom:16,overflowX:"auto",paddingBottom:4}}>
+
 {["toutes","en attente","confirmée","annulée"].map(f=><button key={f} onClick={()=>setFilter(f)} style={{padding:"7px 14px",borderRadius:8,border:"1px solid",borderColor:filter===f?"#f97316":"rgba(255,255,255,0.1)",background:filter===f?"rgba(249,115,22,0.15)":"transparent",color:filter===f?"#fb923c":"#778",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>{f.charAt(0).toUpperCase()+f.slice(1)} <span style={{background:"rgba(255,255,255,0.1)",padding:"1px 6px",borderRadius:10,fontSize:11}}>{f==="toutes"?res.length:res.filter(r=>r.status===f).length}</span></button>)}
+
 </div>
+
 {filtered.length===0&&<div style={{textAlign:"center",padding:"40px 0",color:"#556"}}>Aucune réservation</div>}
+
 {filtered.map(r=><div key={r.id} className="res-row">
+
 <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div><div style={{fontSize:14,fontWeight:700}}>{r.client}</div><div style={{fontSize:12,color:"#778"}}>{r.phone}</div></div>
+
 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}><div style={{background:`${sc(r.status)}22`,border:`1px solid ${sc(r.status)}44`,color:sc(r.status),padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{r.status}</div>{r.payment&&<div style={{background:`${pc(r.payment)}18`,border:`1px solid ${pc(r.payment)}33`,color:pc(r.payment),padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>{r.payment}</div>}</div></div>
+
 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:12}}>
+
 {[["📍",`${r.from_city}→${r.to_city}`],["📅",new Date(r.date).toLocaleDateString("fr-FR")],["🕐",r.depart],["👥",`${r.seats}p`],["💰",`${r.price.toLocaleString()} FCFA`],["🆔",r.id]].map(([i,v])=><div key={`${r.id}-${v}`} style={{fontSize:12,color:"#a0b0d0"}}>{i} {v}</div>)}
+
 </div>
+
 <div style={{display:"flex",gap:8}}>
+
 {r.status!=="confirmée"&&<button onClick={()=>updateResStatus(r.id,"confirmée")} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(34,197,94,0.4)",background:"rgba(34,197,94,0.1)",color:"#22c55e",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✓ Confirmer</button>}
+
 {r.status!=="annulée"&&<button onClick={()=>updateResStatus(r.id,"annulée")} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(245,158,11,0.4)",background:"rgba(245,158,11,0.1)",color:"#f59e0b",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✗ Annuler</button>}
+
 <button onClick={()=>deleteRes(r.id)} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(239,68,68,0.3)",background:"rgba(239,68,68,0.08)",color:"#ef4444",fontSize:14,cursor:"pointer"}}>🗑</button>
+
 </div></div>)}
+
 </>}
+
 {adminTab==="colis"&&<>
+
 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+
 {[{l:"Total",v:colisRes.length,c:"#fb923c"},{l:"Confirmés",v:colisRes.filter(r=>r.status==="confirmée").length,c:"#22c55e"},{l:"Revenus",v:`${(colisRevenue/1000).toFixed(1)}k`,c:"#f59e0b"}].map(s=><div key={s.l} style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:12,padding:"12px 10px",textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:11,color:"#556",marginTop:3}}>{s.l}</div></div>)}
+
 </div>
+
 <div style={{display:"flex",gap:8,marginBottom:16,overflowX:"auto",paddingBottom:4}}>
+
 {["toutes","en attente","confirmée","annulée"].map(f=><button key={f} onClick={()=>setCFilter(f)} style={{padding:"7px 14px",borderRadius:8,border:"1px solid",borderColor:cFilter===f?"#f97316":"rgba(255,255,255,0.1)",background:cFilter===f?"rgba(249,115,22,0.15)":"transparent",color:cFilter===f?"#fb923c":"#778",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>{f.charAt(0).toUpperCase()+f.slice(1)} <span style={{background:"rgba(255,255,255,0.1)",padding:"1px 6px",borderRadius:10,fontSize:11}}>{f==="toutes"?colisRes.length:colisRes.filter(r=>r.status===f).length}</span></button>)}
+
 </div>
+
 {cFiltered.length===0&&<div style={{textAlign:"center",padding:"40px 0",color:"#556"}}>Aucun colis</div>}
+
 {cFiltered.map(r=><div key={r.code} className="res-row">
+
 <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div><div style={{fontSize:14,fontWeight:700}}>{r.sender} → {r.recip}</div><div style={{fontSize:12,color:"#778"}}>{r.code}</div></div>
+
 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}><div style={{background:`${sc(r.status)}22`,border:`1px solid ${sc(r.status)}44`,color:sc(r.status),padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700}}>{r.status}</div>{r.payment&&<div style={{background:`${pc(r.payment)}18`,border:`1px solid ${pc(r.payment)}33`,color:pc(r.payment),padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>{r.payment}</div>}</div></div>
+
 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:12}}>
+
 {[["📍",`${r.from_city}→${r.to_city}`],["⚖️",r.tier],["📞 exp.",r.sender_phone],["📞 dest.",r.recip_phone],["💰",`${r.price.toLocaleString()} FCFA`]].map(([i,v])=><div key={`${r.code}-${v}`} style={{fontSize:12,color:"#a0b0d0"}}>{i} {v}</div>)}
+
 </div>
+
 <div style={{display:"flex",gap:8}}>
+
 {r.status!=="confirmée"&&<button onClick={()=>updateColisStatus(r.code,"confirmée")} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(34,197,94,0.4)",background:"rgba(34,197,94,0.1)",color:"#22c55e",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✓ Confirmer</button>}
+
 {r.status!=="annulée"&&<button onClick={()=>updateColisStatus(r.code,"annulée")} style={{flex:1,padding:"8px 0",borderRadius:8,border:"1px solid rgba(245,158,11,0.4)",background:"rgba(245,158,11,0.1)",color:"#f59e0b",fontSize:12,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>✗ Annuler</button>}
+
 <button onClick={()=>deleteColis(r.code)} style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(239,68,68,0.3)",background:"rgba(239,68,68,0.08)",color:"#ef4444",fontSize:14,cursor:"pointer"}}>🗑</button>
+
 </div></div>)}
+
 </>}
+
 </div></div>}
+
 </div>);}
+
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
 </script></body></html>
