@@ -22,6 +22,12 @@ const before=Math.max(0,bStart-lo),after=Math.max(0,hi-bEnd);
 return 3000+500*(before+after);
 }
 
+
+
+
+
+
+  
 const VILLES=["Dakar","Thiès"];
 
 const PM=[{id:"orange",label:"Orange Money",color:"#FF6B00",bg:"rgba(255,107,0,0.12)",icon:"🟠",hint:"77/78 XXX XX XX"},{id:"wave",label:"Wave",color:"#00BFFF",bg:"rgba(0,191,255,0.1)",icon:"🔵",hint:"70 XXX XX XX"}];
@@ -29,6 +35,10 @@ const PM=[{id:"orange",label:"Orange Money",color:"#FF6B00",bg:"rgba(255,107,0,0
 const COLIS_TIERS=[{id:"leger",label:"Léger",sub:"jusqu'à 5 kg",price:3000},{id:"moyen",label:"Moyen",sub:"5 à 20 kg",price:4500},{id:"lourd",label:"Lourd",sub:"20 à 50 kg",price:6500}];
 
 const ADMIN_PWD="77bobomiya";
+
+const VAPID_PUBLIC_KEY="BMxHz_NcYhmAQW4RUCsBCxaMsPnFuo-3wlLRYgjF2RgmYiZC-UJhI8w_NcCsBRbRNgZgyn7xi9ihtU_XVJgQlq4";
+
+function urlBase64ToUint8Array(base64String){const padding="=".repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/-/g,"+").replace(/_/g,"/");const rawData=atob(base64);const outputArray=new Uint8Array(rawData.length);for(let i=0;i<rawData.length;++i){outputArray[i]=rawData.charCodeAt(i)}return outputArray}
 
 function randCode(){const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return `AD-COL-${s}`}
 
@@ -298,6 +308,25 @@ const colisRevenue=colisRes.filter(r=>r.status==="confirmée").reduce((a,r)=>a+r
 
 const tryAdmin=()=>{if(adminInput===ADMIN_PWD){setAdminOk(true);setAdminErr(false)}else{setAdminErr(true)}};
 
+const[pushStatus,setPushStatus]=useState("idle");
+
+const enablePush=async()=>{
+if(!("serviceWorker" in navigator)||!("PushManager" in window)){showToast("Notifications non supportées sur ce navigateur","error");return}
+setPushStatus("loading");
+try{
+const reg=await navigator.serviceWorker.register("/sw.js");
+const perm=await Notification.requestPermission();
+if(perm!=="granted"){setPushStatus("idle");showToast("Permission refusée","error");return}
+let sub=await reg.pushManager.getSubscription();
+if(!sub){sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)})}
+const j=sub.toJSON();
+const{error}=await sb.from("push_subscriptions").upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth},{onConflict:"endpoint"});
+if(error){setPushStatus("idle");showToast("Erreur d'enregistrement notif","error");return}
+setPushStatus("enabled");
+showToast("Notifications activées ✓")
+}catch(e){setPushStatus("idle");showToast("Erreur notifications","error")}
+};
+
 const currentUnitPrice=zonePrice(itin,fromStop,toStop);
 
 return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:"#0a0f1e",color:"#f0f4ff",display:"flex",flexDirection:"column",alignItems:"center"}}>
@@ -531,6 +560,8 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 <button onClick={()=>setAdminTab("colis")} style={{flex:1,padding:"9px 0",borderRadius:10,border:"1px solid",borderColor:adminTab==="colis"?"#f97316":"rgba(255,255,255,0.1)",background:adminTab==="colis"?"rgba(249,115,22,0.15)":"transparent",color:adminTab==="colis"?"#fb923c":"#778",fontSize:13,fontFamily:"Sora,sans-serif",fontWeight:700,cursor:"pointer"}}>📦 Colis</button>
 
 <button onClick={loadAdminData} style={{padding:"9px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#778",fontSize:13,cursor:"pointer"}}>{busy?<span className="spinner"/>:"↻"}</button>
+
+<button onClick={enablePush} disabled={pushStatus==="enabled"||pushStatus==="loading"} style={{padding:"9px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:pushStatus==="enabled"?"rgba(34,197,94,0.15)":"transparent",color:pushStatus==="enabled"?"#22c55e":"#778",fontSize:13,cursor:"pointer",whiteSpace:"nowrap"}}>{pushStatus==="loading"?<span className="spinner"/>:pushStatus==="enabled"?"🔔 Activées":"🔔 Activer notifs"}</button>
 
 </div>
 
