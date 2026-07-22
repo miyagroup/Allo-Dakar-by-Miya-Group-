@@ -22,15 +22,9 @@ const before=Math.max(0,bStart-lo),after=Math.max(0,hi-bEnd);
 return 3000+500*(before+after);
 }
 
-
-
-
-
-
-  
 const VILLES=["Dakar","Thiès"];
 
-const PM=[{id:"orange",label:"Orange Money",color:"#FF6B00",bg:"rgba(255,107,0,0.12)",icon:"🟠",hint:"77/78 XXX XX XX"},{id:"wave",label:"Wave",color:"#00BFFF",bg:"rgba(0,191,255,0.1)",icon:"🔵",hint:"70 XXX XX XX"}];
+const PM=[{id:"orange",label:"Orange Money",color:"#FF6B00",bg:"rgba(255,107,0,0.12)",icon:"🟠",hint:"77/78 XXX XX XX"},{id:"wave",label:"Wave",color:"#00BFFF",bg:"rgba(0,191,255,0.1)",icon:"🔵",hint:"70 XXX XX XX"},{id:"cash",label:"Espèces",color:"#22c55e",bg:"rgba(34,197,94,0.12)",icon:"💵",hint:""}];
 
 const COLIS_TIERS=[{id:"leger",label:"Léger",sub:"jusqu'à 5 kg",price:3000},{id:"moyen",label:"Moyen",sub:"5 à 20 kg",price:4500},{id:"lourd",label:"Lourd",sub:"20 à 50 kg",price:6500}];
 
@@ -196,7 +190,7 @@ if(!name||!phone)return showToast("Nom et téléphone requis","error");
 
 if(!pm)return showToast("Choisissez un paiement","error");
 
-if(!pmPhone)return showToast("Entrez votre numéro","error");
+if(!pmPhone&&pm!=="Espèces")return showToast("Entrez votre numéro","error");
 
 setBusy(true);
 
@@ -236,7 +230,7 @@ if(!sender||!senderPhone||!recip||!recipPhone)return showToast("Toutes les infos
 
 if(!cPm)return showToast("Choisissez un paiement","error");
 
-if(!cPmPhone)return showToast("Entrez votre numéro","error");
+if(!cPmPhone&&cPm!=="Espèces")return showToast("Entrez votre numéro","error");
 
 setBusy(true);
 
@@ -397,9 +391,11 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 
 {PM.map(p=><div key={p.id} className="pay-card" onClick={()=>{setPm(p.label);setPmPhone("")}} style={{background:pm===p.label?p.bg:"rgba(255,255,255,0.04)",border:`2px solid ${pm===p.label?p.color:"rgba(255,255,255,0.08)"}`}}><div style={{fontSize:30}}>{p.icon}</div><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:pm===p.label?p.color:"#e0e8ff"}}>{p.label}</div><div style={{fontSize:11,color:"#778"}}>Paiement mobile sécurisé</div></div><div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${pm===p.label?p.color:"#445"}`,background:pm===p.label?p.color:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"white"}}>{pm===p.label?"✓":""}</div></div>)}
 
-{pm&&selPm&&<><div style={{background:selPm.bg,border:`1px solid ${selPm.color}55`,borderRadius:12,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:14}}><div style={{fontSize:28}}>{selPm.icon}</div><div><div style={{fontSize:10,color:"#778",textTransform:"uppercase",fontWeight:600}}>Envoyez le paiement au</div><div style={{fontSize:22,fontWeight:800,color:selPm.color,marginTop:3}}>77 591 91 00</div><div style={{fontSize:11,color:"#a0a8c0",marginTop:3}}>Nom : <span style={{color:"#f59e0b",fontWeight:700}}>Miya Group</span></div></div></div><div className="field" style={{marginBottom:24,borderColor:selPm.color+"66"}}><label>Votre numéro {pm} *</label><input value={pmPhone} onChange={e=>setPmPhone(e.target.value)} placeholder={selPm.hint} type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></>}
+{pm&&selPm&&pm!=="Espèces"&&<><div style={{background:selPm.bg,border:`1px solid ${selPm.color}55`,borderRadius:12,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:14}}><div style={{fontSize:28}}>{selPm.icon}</div><div><div style={{fontSize:10,color:"#778",textTransform:"uppercase",fontWeight:600}}>Envoyez le paiement au</div><div style={{fontSize:22,fontWeight:800,color:selPm.color,marginTop:3}}>77 591 91 00</div><div style={{fontSize:11,color:"#a0a8c0",marginTop:3}}>Nom : <span style={{color:"#f59e0b",fontWeight:700}}>Miya Group</span></div></div></div><div className="field" style={{marginBottom:24,borderColor:selPm.color+"66"}}><label>Votre numéro {pm} *</label><input value={pmPhone} onChange={e=>setPmPhone(e.target.value)} placeholder={selPm.hint} type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></>}
 
-<button className="btn-primary" onClick={book} disabled={busy}>{busy?<span className="spinner"/>:`Payer et Réserver ${pm?`via ${pm}`:""} ✓`}</button></div>}
+{pm==="Espèces"&&<div style={{background:"rgba(34,197,94,0.1)",border:"1px solid rgba(34,197,94,0.3)",borderRadius:12,padding:"14px 16px",marginBottom:24,fontSize:13,color:"#86efac"}}>💵 Tu paieras directement en espèces au chauffeur, au moment du trajet.</div>}
+
+<button className="btn-primary" onClick={book} disabled={busy}>{busy?<span className="spinner"/>:pm==="Espèces"?"Réserver ✓":`Payer et Réserver ${pm?`via ${pm}`:""} ✓`}</button></div>}
 
 {step===4&&lastRes&&<div className="card" style={{textAlign:"center"}}><div style={{fontSize:64,marginBottom:16}}>✅</div><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Réservation envoyée !</div><div style={{fontSize:14,color:"#778",marginBottom:24}}>Vous serez contacté pour confirmer. Gardez votre ID pour vérifier le statut.</div>
 
@@ -469,9 +465,11 @@ return(<div style={{fontFamily:"'Sora',sans-serif",minHeight:"100vh",background:
 
 {PM.map(p=><div key={p.id} className="pay-card" onClick={()=>{setCPm(p.label);setCPmPhone("")}} style={{background:cPm===p.label?p.bg:"rgba(255,255,255,0.04)",border:`2px solid ${cPm===p.label?p.color:"rgba(255,255,255,0.08)"}`}}><div style={{fontSize:30}}>{p.icon}</div><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:cPm===p.label?p.color:"#e0e8ff"}}>{p.label}</div><div style={{fontSize:11,color:"#778"}}>Paiement mobile sécurisé</div></div><div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${cPm===p.label?p.color:"#445"}`,background:cPm===p.label?p.color:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"white"}}>{cPm===p.label?"✓":""}</div></div>)}
 
-{cPm&&selCPm&&<><div style={{background:selCPm.bg,border:`1px solid ${selCPm.color}55`,borderRadius:12,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:14}}><div style={{fontSize:28}}>{selCPm.icon}</div><div><div style={{fontSize:10,color:"#778",textTransform:"uppercase",fontWeight:600}}>Envoyez le paiement au</div><div style={{fontSize:22,fontWeight:800,color:selCPm.color,marginTop:3}}>77 591 91 00</div><div style={{fontSize:11,color:"#a0a8c0",marginTop:3}}>Nom : <span style={{color:"#f59e0b",fontWeight:700}}>Miya Group</span></div></div></div><div className="field" style={{marginBottom:24,borderColor:selCPm.color+"66"}}><label>Votre numéro {cPm} *</label><input value={cPmPhone} onChange={e=>setCPmPhone(e.target.value)} placeholder={selCPm.hint} type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></>}
+{cPm&&selCPm&&cPm!=="Espèces"&&<><div style={{background:selCPm.bg,border:`1px solid ${selCPm.color}55`,borderRadius:12,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:14}}><div style={{fontSize:28}}>{selCPm.icon}</div><div><div style={{fontSize:10,color:"#778",textTransform:"uppercase",fontWeight:600}}>Envoyez le paiement au</div><div style={{fontSize:22,fontWeight:800,color:selCPm.color,marginTop:3}}>77 591 91 00</div><div style={{fontSize:11,color:"#a0a8c0",marginTop:3}}>Nom : <span style={{color:"#f59e0b",fontWeight:700}}>Miya Group</span></div></div></div><div className="field" style={{marginBottom:24,borderColor:selCPm.color+"66"}}><label>Votre numéro {cPm} *</label><input value={cPmPhone} onChange={e=>setCPmPhone(e.target.value)} placeholder={selCPm.hint} type="tel" style={{fontSize:15,fontWeight:600,marginTop:2}}/></div></>}
 
-<button className="btn-primary" onClick={cBook} disabled={busy}>{busy?<span className="spinner"/>:`Payer et Envoyer ${cPm?`via ${cPm}`:""} ✓`}</button></div>}
+{cPm==="Espèces"&&<div style={{background:"rgba(34,197,94,0.1)",border:"1px solid rgba(34,197,94,0.3)",borderRadius:12,padding:"14px 16px",marginBottom:24,fontSize:13,color:"#86efac"}}>💵 Tu paieras directement en espèces au dépôt du colis.</div>}
+
+<button className="btn-primary" onClick={cBook} disabled={busy}>{busy?<span className="spinner"/>:cPm==="Espèces"?"Envoyer ✓":`Payer et Envoyer ${cPm?`via ${cPm}`:""} ✓`}</button></div>}
 
 {cStep===4&&lastColis&&<div className="card" style={{textAlign:"center"}}><div style={{fontSize:64,marginBottom:16}}>✅</div><div style={{fontSize:22,fontWeight:800,marginBottom:8}}>Colis enregistré !</div><div style={{fontSize:14,color:"#778",marginBottom:24}}>Gardez ce code pour le suivi et le retrait.</div>
 
